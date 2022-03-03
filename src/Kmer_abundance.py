@@ -1,56 +1,75 @@
-import random 
-from os import listdir
-from tqdm import tqdm
+from itertools import product 
 
-DATASET = []
-TAXOMONY = []
-read_ids = []
-COLOR_DICT = {}
-COLOR_DICT['UNMAPPED ON SILVIA DB'] = 'black'
-
-def get_color(tax_list):
+def normalize(kmers):
+    """
+    The functuion ...
+    Parameters
+    ----------
+    reads : str
+        path to ...
+    out_dir : str
+        path to ...
+    hang1 : str
+        Sequence ...
+    hang2 : str
+        Sequence ...
+    Returns
+    -------
+    -
+    """
+    norm = sum(list(kmers.values()))
     
-    color = ''
-    
-    while color not in tax_list.values() and color == '':
+    for kmer in kmers.keys():
         
-        color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-        
-        if color == '#000000':
-            
-            color = ''
-            
-    return color
-
-#for barcode in listdir('./DATA/FILTER_BARCODES/'):
+        kmers[kmer] = kmers[kmer]/ norm
     
-c = 0
-#    sample = parse('./DATA/FILTER_BARCODES/' + barcode, 'fastq')
-
-for sequene in tqdm(sample):
+    return kmers
 
 
-    read_ids.append(sequene.id)
+def get_kmers_fereq(seq, k=2):
+    """
+    The functuion ...
+    Parameters
+    ----------
+    reads : str
+        path to ...
+    out_dir : str
+        path to ...
+    hang1 : str
+        Sequence ...
+    hang2 : str
+        Sequence ...
+    Returns
+    -------
+    -
+    """
+    kmers = {"".join(kmer) : 0 for kmer in list(product("AGTC", repeat=k))}
+    
+    step = 1
+    start = 0
+    end = k
+    cken = []
+    while end != len(seq) - 1:
+        #try:
+        kmers[str(seq[start: end])] += 1
+    #    except:
+        
+        start, end = start + step, end + step
+        
+    step = 1
+    start = 0
+    end = k
 
-    try:
-       # if _16s_card[_16s_card[0] == sequene.id][1].values[0].split(';')[-2] in top_10:
+    while end != len(seq.reverse_complement()) - 1:
+        
+        #try:
+        kmers[str(seq.reverse_complement()[start: end])] += 1
+   #     except:
+        
+        start, end = start + step, end + step
+        
+    kmers = normalize(kmers)
+    
+    return kmers
 
-        TAXOMONY.append(_16s_card[_16s_card[0] == sequene.id][1].values[0].split(';')[-2])#[-1].split()[1])
 
-        if _16s_card[_16s_card[0] == sequene.id][1].values[0].split(';')[-2] not in COLOR_DICT:
-
-            COLOR_DICT[_16s_card[_16s_card[0] == sequene.id][1].values[0].split(';')[-2]] = get_color(COLOR_DICT)
-        #else:
-
-         #   TAXOMONY.append('UNMAPPED ON SILVIA DB')
-
-    except IndexError:
-
-        TAXOMONY.append('UNMAPPED ON SILVIA DB')
-
-    #DATASET.append(np.concatenate((np.array(list(get_kmers_fereq(sequene.seq, 2).values())), np.array(list(get_kmers_fereq(sequene.seq.reverse_complement(), 2).values())))))
-    DATASET.append(list(get_kmers_fereq(sequene.seq, 5).values()))
-c += 1
-        #for i in range(2, 7):
-print()
-print('Done!')
