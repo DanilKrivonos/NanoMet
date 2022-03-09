@@ -138,9 +138,11 @@ def main():
         else:
             
             call('cat {} > {}/{}'.format(barcode_directory, out_dir, barcode_name.split('/')[-1]), shell=True)
-
+    print(fastq)
     fastq = cut_tails(fastq, out_dir, trimm_adapter, trimm_primer, hangF, hangR)
+    print(fastq)
     fastq = get_read_filter(fastq, disable_filter, out_dir)
+    print(fastq)
     RESULT_DF = get_clustering(fastq, out_dir)
     get_cluster_sequences(RESULT_DF, fastq, out_dir)
     

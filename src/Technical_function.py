@@ -28,10 +28,11 @@ def cut_tails(fastq, out_dir, trimm_adapter, trimm_primer, hangF, hangR):
     output = fastq
     # cut barcodes
     if trimm_adapter == True:
-
+        
         call('porechop -i {} --verbosity 1 -t 100 --require_two_barcodes --extra_end_trim 0 -o {}/trimmed_barcode.fastq'.format(fastq, out_dir), shell=True)
         fastq = out_dir + "/trimmed_barcode.fastq"
         output = out_dir + "/trimmed_barcode.fastq"
+
     # cut primers
     if trimm_primer == True:
 
