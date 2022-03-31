@@ -78,7 +78,7 @@ def main():
     barcode_directory = args.barcode_directory
     fastq = args.fastq
     trimm = args.trimm
-    v = args.path_to_SILVA
+    silva_db = args.path_to_SILVA
     hangF = args.primer_hangF
     hangR = args.primer_hangR
     disable_filter = args.disable_filter
