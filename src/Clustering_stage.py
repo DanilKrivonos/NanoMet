@@ -83,6 +83,7 @@ def get_clustering(fastq, out_dir):
         RESULT_DICT['Class'].append(hdbscan_labels[idx])
 
     RESULT_DF = DataFrame(RESULT_DICT)
+    RESULT_DF = RESULT_DF[RESULT_DF['Class'] != -1]
     RESULT_DF.to_csv('./{}/Read_clusters.tsv'.format(out_dir), sep='\t')
 
     return RESULT_DF

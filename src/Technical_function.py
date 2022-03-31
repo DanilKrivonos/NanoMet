@@ -28,7 +28,7 @@ def cut_tails(fastq, out_dir, trimm_adapter, trimm_primer, hangF, hangR):
     output = fastq
     # cut barcodes
     if trimm_adapter == True:
-        
+
         call('porechop -i {} --verbosity 1 -t 100 --require_two_barcodes --extra_end_trim 0 -o {}/trimmed_barcode.fastq'.format(fastq, out_dir), shell=True)
         fastq = out_dir + "/trimmed_barcode.fastq"
         output = out_dir + "/trimmed_barcode.fastq"
@@ -36,23 +36,20 @@ def cut_tails(fastq, out_dir, trimm_adapter, trimm_primer, hangF, hangR):
     # cut primers
     if trimm_primer == True:
 
-        opn_fastq = open(fastq)
-        switch = 0
+        opn_fastq = parse(fastq, 'fastq')
+
         # cut primers
         with open('{}/trimmed_primer.fastq'.format(out_dir), 'w') as trimmed_fasta:
-            for line in opn_fastq:
-                if switch == 0:
+            for record in opn_fastq:
+                for idx in range(4):
+                    if idx != 1 or idx != 3:
 
-                    trimmed_fasta.write(line)
-                    switch = 1
-                    continue
+                        trimmed_fasta.write(record.format('fastq').split('\n')[idx] + '\n')
 
-                if switch == 1:
+                    else:
 
-                    trimmed_fasta.write(line[len(hangF): -len(hangR)] + "\n")
-                    switch = 0
-                    continue
-        
+                        trimmed_fasta.write(record.format('fastq').split('\n')[idx][len(hangF): -len(hangR)] + '\n')
+
         output = '{}/trimmed_primer.fastq'.format(out_dir)
 
     return output
@@ -123,6 +120,10 @@ def get_cluster_sequences(RESULT_DF, fastq, out_dir):
 
         except:
             pass
+    
+    cluster_out = '{}/Clusters/'.format(out_dir)
+
+    return cluster_out
 
 def get_SILVA_taxon():
     """

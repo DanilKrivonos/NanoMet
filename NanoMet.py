@@ -10,6 +10,8 @@ from os import listdir
 from tqdm import tqdm
 from src.Technical_function import cut_tails, get_read_filter, get_cluster_sequences
 from src.Clustering_stage import get_clustering
+from src.Get_consensus import get_closer_seq, get_consensus
+from src.Find_OTU import align_consensus
 
 def main():
     parser = argparse.ArgumentParser(description='BioCAT is a tool, which estimates the' + 
@@ -76,7 +78,7 @@ def main():
     barcode_directory = args.barcode_directory
     fastq = args.fastq
     trimm = args.trimm
-    silva_db = args.path_to_SILVA
+    v = args.path_to_SILVA
     hangF = args.primer_hangF
     hangR = args.primer_hangR
     disable_filter = args.disable_filter
@@ -138,16 +140,14 @@ def main():
         else:
             
             call('cat {} > {}/{}'.format(barcode_directory, out_dir, barcode_name.split('/')[-1]), shell=True)
-    print(fastq)
+
     fastq = cut_tails(fastq, out_dir, trimm_adapter, trimm_primer, hangF, hangR)
-    print(fastq)
     fastq = get_read_filter(fastq, disable_filter, out_dir)
-    print(fastq)
     RESULT_DF = get_clustering(fastq, out_dir)
-    get_cluster_sequences(RESULT_DF, fastq, out_dir)
-    
-
-
+    cluster_out = get_cluster_sequences(RESULT_DF, fastq, out_dir)
+    get_closer_seq(cluster_out, out_dir)
+    get_consensus(cluster_out, out_dir)
+    align_consensus(out_dir, silva_db)
     #if trimm != False:
 
      #   os.mkdir('{}/TRIMMED_{}/'.format(out_dir, barcode_name))
