@@ -4,6 +4,7 @@ import sys
 import shutil
 import logging
 import argparse 
+from pickle import dump
 from subprocess import call
 from pandas import read_csv
 from os import listdir 
@@ -11,7 +12,7 @@ from tqdm import tqdm
 from src.Technical_function import cut_tails, get_read_filter, get_cluster_sequences
 from src.Clustering_stage import get_clustering
 from src.Get_consensus import get_closer_seq, get_consensus
-from src.Find_OTU import align_consensus
+from src.Find_OTU import align_consensus, get_presentative
 
 def main():
     parser = argparse.ArgumentParser(description='BioCAT is a tool, which estimates the' + 
@@ -148,6 +149,8 @@ def main():
     get_closer_seq(cluster_out, out_dir)
     get_consensus(cluster_out, out_dir)
     align_consensus(out_dir, silva_db)
+    abs_presentative = get_presentative(out_dir, silva_db)
+    abs_presentative.to_csv('{}/Result_absolute_abundance.txt'.format(out_dir), sep='\t', index=False)
     #if trimm != False:
 
      #   os.mkdir('{}/TRIMMED_{}/'.format(out_dir, barcode_name))
@@ -158,8 +161,6 @@ def main():
 
      #   os.mkdir('{}/FILTER_{}/'.format(out_dir, barcode_name))
     
-
-
     print('nononionionio')
     a_logger.debug('NanoMet processing is done!')
 if __name__ == "__main__":
