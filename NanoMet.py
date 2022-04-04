@@ -98,6 +98,9 @@ def main():
 
         except:
             print('Dorectory is exist!')
+    else:
+        
+        os.mkdir(out_dir)
 
     a_logger = logging.getLogger()
     a_logger.setLevel(logging.DEBUG)
