@@ -33,13 +33,14 @@ def get_taxonomy(abs_presentative, taxonomy):
     
     abs_presentative = DataFrame({'Taxonomy' : list(abs_presentative.keys()), 'Presentative' : list(abs_presentative.values())})
     
-    for tax_id in abs_presentative.index:
+    for tax_id in abs_presentative.copy().index:
 
-        abs_presentative['Taxonomy'][tax_id] =  taxonomy[abs_presentative['Taxonomy'][tax_id]]
+        ID = abs_presentative['Taxonomy'][tax_id]
+        abs_presentative['Taxonomy'][tax_id] =  taxonomy[ID]
 
     return abs_presentative
 
-def get_presentative(out_dir, path_to_SILVA):
+def get_presentative(out_dir, path_to_SILVA, threads):
 
     clusters = listdir('{}/Consensus/'.format(out_dir))
     ALL_POTENTIAL_OTU = {} 
@@ -76,7 +77,7 @@ def get_presentative(out_dir, path_to_SILVA):
 
         for pro_otu in ALL_POTENTIAL_OTU[cluster]:
         #    print('fastANI --fragLen 200 --ql {}/FastANI_result/{}/path.txt  -r {}/potential_otus/{}.fasta -o {}/proOTU/{}/{}.txt'.format(out_dir, cluster, out_dir, pro_otu, out_dir, cluster, cluster))
-            call('fastANI --fragLen 200 --ql {}/FastANI_result/{}/path.txt  -r {}/potential_otus/{}.fasta -o {}/proOTU/{}/{}.txt'.format(out_dir, cluster, out_dir, pro_otu, out_dir, cluster, cluster), shell=True)
+            call('fastANI -t {} --fragLen 200 --ql {}/FastANI_result/{}/path.txt  -r {}/potential_otus/{}.fasta -o {}/proOTU/{}/{}.txt'.format(threads, out_dir, cluster, out_dir, pro_otu, out_dir, cluster, cluster), shell=True)
             abs_presentative = get_cluster_presentstive(out_dir, cluster, abs_presentative)
 
     abs_presentative = get_taxonomy(abs_presentative, taxonomy)

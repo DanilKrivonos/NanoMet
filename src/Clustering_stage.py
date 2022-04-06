@@ -2,16 +2,26 @@ import logging
 import numpy as np
 from tqdm import tqdm
 from umap import UMAP
+from subprocess import call
 from src.Kmer_abundance import get_kmers_fereq
 from scipy.spatial.distance import pdist, squareform
 from Bio.SeqIO import parse
 from hdbscan import HDBSCAN
-from pandas import DataFrame
+from pandas import DataFrame, read_csv
 
 a_logger = logging.getLogger()
 a_logger.setLevel(logging.DEBUG)
 
-def get_clustering(fastq, out_dir):
+def select_read(fastq, silva, out_dir):
+
+    awk_command = "'{" + 'print $1"\t"$3' + "}'"
+    call('minimap2 -ax map-ont {} {} |samtools view -F 260 |awk -F "{}" {} > {}/selected_reads.txt'.format(silva, fastq, '\t', awk_command, out_dir), shell=True)
+    print('minimap2 -ax map-ont {} {} |samtools view -F 260 |awk -F "{}" {} > {}/selected_reads.txt'.format(silva, fastq, '\t', awk_command, out_dir))
+    selected_reds = list(read_csv('{}/selected_reads.txt'.format(out_dir), sep='\t', header=None)[0].values)
+
+    return selected_reds
+
+def get_clustering(fastq, silva, out_dir):
     """
     The functuion ...
     Parameters
@@ -28,6 +38,7 @@ def get_clustering(fastq, out_dir):
     -------
     -
     """
+    selected_reds = select_read(fastq, silva, out_dir)
     umap_model = UMAP(n_neighbors=200,
                     min_dist=0.4,
                     metric='manhattan')
@@ -43,7 +54,8 @@ def get_clustering(fastq, out_dir):
     a_logger.debug('UMAP stage ...')
 
     for sequence in tqdm(open_fastq):
-
+        if sequence.id not in selected_reds:
+            continue
         READ_IDS.append(sequence.id)
         DATASET.append(list(get_kmers_fereq(sequence.seq, 5).values()))
     

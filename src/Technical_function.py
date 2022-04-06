@@ -1,5 +1,6 @@
 import os
 import logging
+import shutil
 import numpy as np
 from tqdm import tqdm
 from subprocess import call
@@ -7,6 +8,19 @@ from Bio.SeqIO import parse
 
 a_logger = logging.getLogger()
 a_logger.setLevel(logging.DEBUG)
+
+def create_dir(out_dir):
+    if out_dir is None:
+        
+        out_dir = './NanoMet_output'
+        
+    if os.path.exists(out_dir):
+
+        shutil.rmtree(out_dir)
+    
+    os.mkdir(out_dir)
+    
+    return out_dir
 
 def cut_tails(fastq, out_dir, trimm_adapter, trimm_primer, hangF, hangR):
     """
@@ -29,7 +43,7 @@ def cut_tails(fastq, out_dir, trimm_adapter, trimm_primer, hangF, hangR):
     # cut barcodes
     if trimm_adapter == True:
 
-        call('porechop -i {} --verbosity 1 -t 100 --require_two_barcodes --extra_end_trim 0 -o {}/trimmed_barcode.fastq'.format(fastq, out_dir), shell=True)
+        call('porechop -i {} --verbosity 0 -t 100 --require_two_barcodes --extra_end_trim 0 -o {}/trimmed_barcode.fastq'.format(fastq, out_dir), shell=True)
         fastq = out_dir + "/trimmed_barcode.fastq"
         output = out_dir + "/trimmed_barcode.fastq"
 
@@ -78,7 +92,8 @@ def get_read_filter(fastq, disable_filter, out_dir):
     else:
 
         output = '{}/filter_reads.fastq'.format(out_dir)
-        call('filtlong --min_length 350 --max_length 600 --mean_q_weight 12 {} > {}'.format(fastq, output), shell=True)
+        call('filtlong --min_length 350 --max_length 600 {} > {}'.format(fastq, output), shell=True)
+       # call('filtlong --min_length 350 --max_length 600 --mean_q_weight 12 {} > {}'.format(fastq, output), shell=True)
 
         return output
 
@@ -124,7 +139,7 @@ def get_cluster_sequences(RESULT_DF, fastq, out_dir):
     cluster_out = '{}/Clusters/'.format(out_dir)
 
     return cluster_out
-
+#########################################################################################################
 def get_SILVA_taxon():
     """
     The functuion ...
@@ -151,4 +166,4 @@ def get_SILVA_taxon():
         ID = line.description.split()[0]
         taxonomy = ' '.join(line.description.split()[1: ])
         full_tax[ID] = taxonomy     
-        
+################################################################################################################

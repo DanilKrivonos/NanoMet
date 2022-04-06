@@ -5,7 +5,7 @@ from tqdm import tqdm
 from subprocess import call
 from pandas import read_csv
 
-def get_closer_seq(cluster_out, out_dir):
+def get_closer_seq(cluster_out, out_dir, threads):
 
     output = '{}/FastANI_result/'.format(out_dir)
     os.mkdir(output)
@@ -19,11 +19,11 @@ def get_closer_seq(cluster_out, out_dir):
 
                 path.write('{}/Clusters/{}/{}\n'.format(out_dir, cluster, fasta))
 
-        call('fastANI --fragLen 200 --ql {}/path.txt --rl {}/path.txt -o {}/fastANI_result.txt'.format(output + cluster, output + cluster, output + cluster), shell=True)
+        call('fastANI -t {} --fragLen 200 --ql {}/path.txt --rl {}/path.txt -o {}/fastANI_result.txt'.format(threads, output + cluster, output + cluster, output + cluster), shell=True)
     
 
 
-def get_consensus(cluster_out, out_dir):
+def get_consensus(cluster_out, out_dir, threads):
     print('biobnonoin')
     os.mkdir('{}/Consensus'.format(out_dir))
     print('uibuiguiguiburm -r')
@@ -52,16 +52,19 @@ def get_consensus(cluster_out, out_dir):
                                                                                                     shell=True)
         call('cat {} > {}/Consensus/{}/polishing_data.fasta'.format(' '.join(polish_data), out_dir, cluster), shell=True)
 
-        call('minimap2 -ax map-ont {out}/Consensus/{clstr}/consensus.fasta {out}/Consensus/{clstr}/polishing_data.fasta > {out}/Consensus/{clstr}/polishing_data.sam'.format(out=out_dir, 
+        call('minimap2 -ax map-ont -t {threads} {out}/Consensus/{clstr}/consensus.fasta {out}/Consensus/{clstr}/polishing_data.fasta > {out}/Consensus/{clstr}/polishing_data.sam'.format(threads=threads,
+                                                                                                                                                                             out=out_dir, 
                                                                                                                                                                              clstr=cluster), 
                                                                                                                                                                              shell=True)
         
         
-        call('racon {out}/Consensus/{clstr}/polishing_data.fasta {out}/Consensus/{clstr}/polishing_data.sam {out}/Consensus/{clstr}/consensus.fasta > {out}/Consensus/{clstr}/consensus_polished_racon.fasta'.format(out=out_dir,
+        call('racon -t {threads} {out}/Consensus/{clstr}/polishing_data.fasta {out}/Consensus/{clstr}/polishing_data.sam {out}/Consensus/{clstr}/consensus.fasta > {out}/Consensus/{clstr}/consensus_polished_racon.fasta'.format(threads=threads,
+                                                                                                                                                                                                                        out=out_dir,
                                                                                                                                                                                                                      clstr=cluster), 
                                                                                                                                                                                                                      shell=True)
 
-        call('medaka_consensus -i {out}/Consensus/{clstr}/polishing_data.fasta -d {out}/Consensus/{clstr}/consensus_polished_racon.fasta -o {out}/Consensus/{clstr}/medaka_result'.format(out=out_dir,
+        call('medaka_consensus -t {threads} -i {out}/Consensus/{clstr}/polishing_data.fasta -d {out}/Consensus/{clstr}/consensus_polished_racon.fasta -o {out}/Consensus/{clstr}/medaka_result'.format(threads=threads, 
+        out=out_dir,
                                                                                                                                                                                           clstr=cluster), 
                                                                                                                                                                                           shell=True)
  
