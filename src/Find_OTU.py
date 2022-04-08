@@ -77,7 +77,7 @@ def get_presentative(out_dir, path_to_SILVA, threads):
 
         for pro_otu in ALL_POTENTIAL_OTU[cluster]:
         #    print('fastANI --fragLen 200 --ql {}/FastANI_result/{}/path.txt  -r {}/potential_otus/{}.fasta -o {}/proOTU/{}/{}.txt'.format(out_dir, cluster, out_dir, pro_otu, out_dir, cluster, cluster))
-            call('fastANI -t {} --fragLen 200 --ql {}/FastANI_result/{}/path.txt  -r {}/potential_otus/{}.fasta -o {}/proOTU/{}/{}.txt'.format(threads, out_dir, cluster, out_dir, pro_otu, out_dir, cluster, cluster), shell=True)
+            call('fastANI -t {} --fragLen 350 --ql {}/FastANI_result/{}/path.txt  -r {}/potential_otus/{}.fasta -o {}/proOTU/{}/{}.txt'.format(threads, out_dir, cluster, out_dir, pro_otu, out_dir, cluster, cluster), shell=True)
             abs_presentative = get_cluster_presentstive(out_dir, cluster, abs_presentative)
 
     abs_presentative = get_taxonomy(abs_presentative, taxonomy)
